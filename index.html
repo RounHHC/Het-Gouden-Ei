@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Het Gouden Ei — zelfstandig leerpad</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf7f0; --surface:#ffffff; --ink:#221f1a; --muted:#6a6459; --line:#e6dfd0;
+  --accent:#94620a; --accent-soft:#f7ecd2; --accent-ink:#ffffff;
+  --ok:#2f7d4f; --ok-soft:#e2f2e8; --bad:#b3402f; --bad-soft:#f8e4e0;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16140f; --surface:#211e17; --ink:#f0ebdf; --muted:#a39c8c; --line:#39342a;
+    --accent:#e0a93b; --accent-soft:#3a2f14; --accent-ink:#1a1405;
+    --ok:#6cc48d; --ok-soft:#1c3324; --bad:#e58b7c; --bad-soft:#3b201b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16140f; --surface:#211e17; --ink:#f0ebdf; --muted:#a39c8c; --line:#39342a;
+  --accent:#e0a93b; --accent-soft:#3a2f14; --accent-ink:#1a1405;
+  --ok:#6cc48d; --ok-soft:#1c3324; --bad:#e58b7c; --bad-soft:#3b201b;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--serif);line-height:1.2;margin:0 0 .5em}
+h1{font-size:1.6rem} h2{font-size:1.5rem} h3{font-size:1.1rem;margin-top:1.6em}
+p{margin:0 0 .9em} ul,ol{margin:0 0 .9em;padding-left:1.3em} li{margin-bottom:.3em}
+a{color:var(--accent)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+.brand{display:flex;align-items:center;gap:12px;padding:12px 0 8px}
+.brand svg{flex:none}
+.brand .t{font-family:var(--serif);font-weight:700;font-size:1.05rem;line-height:1.15}
+.brand .s{font-size:.78rem;color:var(--muted)}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:0 0 8px}
+.bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+nav.steps{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:thin}
+nav.steps button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:6px 12px;font:500 .82rem var(--sans);cursor:pointer;white-space:nowrap}
+nav.steps button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+nav.steps button.done::after{content:" ✓";color:var(--ok);font-weight:700}
+nav.steps button.on.done::after{color:var(--accent-ink)}
+main{padding:20px 0 60px}
+.station{display:none}.station.on{display:block}
+.meta{color:var(--muted);font-size:.85rem;margin:-.2em 0 1em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 16px}
+.goal{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:.95rem}
+.goal b{display:block;margin-bottom:2px}
+.task{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:14px 16px;margin:0 0 16px}
+.task .q{margin-bottom:.6em}
+.fragbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.fragnr{font-weight:600;color:var(--accent);font-size:.85rem;margin-bottom:6px}
+.fragtext{font-size:.95rem;line-height:1.75}
+.fragtext mark.hl{background:#ffd86b;color:#221f1a;border-radius:3px;padding:0 2px;cursor:pointer}
+:root[data-theme="dark"] .fragtext mark.hl{background:#a9761c;color:#221f1a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fragtext mark.hl{background:#a9761c;color:#221f1a}}
+.fragtools{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn.small{padding:6px 11px;font-size:.82rem}
+.fraghint{font-size:.82rem;color:var(--muted);margin:2px 0 0}
+.tag{display:inline-block;font-size:.72rem;font-weight:600;background:var(--accent-soft);color:var(--accent);border-radius:99px;padding:1px 9px;margin-left:6px;vertical-align:middle}
+textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:92px;resize:vertical}
+textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details{margin:.6em 0 0;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;background:var(--bg)}
+details summary{cursor:pointer;font-weight:600;font-size:.9rem;color:var(--accent)}
+details[open]{background:var(--accent-soft);border-style:solid}
+details>*:not(summary){margin-top:.6em;font-size:.95rem}
+.frag{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:0 0 .8em;color:var(--muted);font-size:.95rem}
+.def{background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin:0 0 1em;font-size:.95rem}
+.note{background:var(--bad-soft);border-radius:10px;padding:10px 14px;margin:0 0 1em;font-size:.92rem}
+.btn{font:600 .92rem var(--sans);border-radius:10px;padding:10px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.qbox{margin:0 0 16px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.expl{font-size:.92rem;margin-top:8px;color:var(--muted)}
+.score{font-weight:600;margin:.4em 0}
+.stars{display:flex;gap:4px;margin:.3em 0 .8em}
+.stars button{background:none;border:none;font-size:2rem;line-height:1;cursor:pointer;color:var(--line);padding:2px}
+.stars button.on{color:#d99a1c}
+.wc{font-size:.82rem;color:var(--muted);text-align:right;margin-top:4px}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px}
+.chk input{margin-top:.35em;width:18px;height:18px;flex:none;accent-color:var(--accent)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px}
+.seg button{font:500 .85rem var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.two{display:grid;gap:12px}
+@media(min-width:640px){.two{grid-template-columns:1fr 1fr}h1{font-size:2rem}}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:0 0 1em}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft)}
+.msg{font-size:.88rem;color:var(--ok);min-height:1.2em;margin-top:6px}
+.tblwrap{overflow-x:auto;margin:0 0 1em;-webkit-overflow-scrolling:touch}
+.tblwrap table{min-width:640px}
+.cellta{width:100%;min-height:64px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;resize:vertical}
+.tblwrap th:first-child,.tblwrap td:first-child{white-space:nowrap;font-weight:600}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="34" height="42" viewBox="0 0 34 42" aria-hidden="true"><defs><radialGradient id="g" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".55" stop-color="#e2a92a"/><stop offset="1" stop-color="#a86f0a"/></radialGradient></defs><path d="M17 2C8 2 2 16 2 26c0 9 7 14 15 14s15-5 15-14C32 16 26 2 17 2z" fill="url(#g)"/></svg>
+      <div><div class="t">Het Gouden Ei</div><div class="s">Tim Krabbé · zelfstandig leerpad · Nederlands 4</div></div>
+    </div>
+    <div class="bar" role="progressbar" aria-label="Voortgang"><i id="pbar"></i></div>
+    <nav class="steps" id="steps" aria-label="Stations"></nav>
+  </div>
+</header>
+<main class="wrap">
+<!-- ============ START ============ -->
+<section class="station" data-title="Start" data-min="">
+  <h1>Leerpad <i>Het Gouden Ei</i></h1>
+  <p class="meta">Je hebt <i>Het Gouden Ei</i> gelezen. Nu ga je zelf ontdekken hoe dit boek werkt en wat het je wil vertellen, op je eigen tempo.</p>
+  <div class="card">
+    <label for="naam"><b>Jouw naam</b></label>
+    <input type="text" id="naam" data-name placeholder="Voornaam + naam">
+  </div>
+  <h3 style="margin-top:0">Zo werkt het</h3>
+  <ol>
+    <li><b>Denk en schrijf eerst zelf.</b> Klap pas daarna “Hulp nodig?” of “Controleer je antwoord” open. Zo leer je het meest.</li>
+    <li><b>Je antwoorden worden automatisch bewaard</b> in deze browser op dit toestel. Werk dus telkens op dezelfde laptop. Onderaan (station 8) download je een Word-bestand met al je antwoorden, dat je kan indienen of uploaden naar Google Drive.</li>
+    <li><b>Je hebt je boek nodig.</b> Paginanummers staan in twee edities, bv. “p. 10 / p. 7”. Klopt het nummer niet met jouw exemplaar? Zoek dan het fragment op via de context.</li>
+    <li><b>Je kan vrij heen en weer klikken</b>, maar de volgorde is met opzet gekozen: van herkennen, naar begrijpen, naar beoordelen.</li>
+    <li><b>Duid onderaan elk station aan dat je klaar bent.</b> Zo zie je je route vorderen.</li>
+  </ol>
+  <h3>Bijlagen bij dit leerpad</h3>
+  <p>Enkele opdrachten werken met fragmenten en een tekst die je in een apart document vindt (Bijlage 1: fragmenten uit de roman, Bijlage 2: de mythe van de missende helft):</p>
+  <p><a href="https://docs.google.com/document/d/1G3gExFbfYSd2qfCROZzxR4AdH7v78a0lXeCfc5ETgQI/preview" target="_blank" rel="noopener">Open de bijlagen ↗</a></p>
+  <h3>Je route</h3>
+  <table>
+    <tr><th>Station</th><th>Wat je doet</th><th>Tijd</th></tr>
+    <tr><td>1 Opwarming</td><td>Wat weet je nog? Wat vond je onduidelijk?</td><td>± 15 min</td></tr>
+    <tr><td>2 Bouwstenen</td><td>Personages, ruimte, verteller en tijd</td><td>± 35 min</td></tr>
+    <tr><td>3 Thema</td><td>Wat wil Krabbé zeggen? Twee mythes helpen je</td><td>± 25 min</td></tr>
+    <tr><td>4 Motieven</td><td>Gouden ei, sleutel, getal 8</td><td>± 30 min</td></tr>
+    <tr><td>5 Metafictionele lezing</td><td>Metafictie: ruimtevaart, spel, eend</td><td>± 25 min</td></tr>
+    <tr><td>6 Maatschappelijke lezing</td><td>Hoe kijkt het boek naar mensen? Moet je dit nog lezen?</td><td>± 30 min</td></tr>
+    <tr><td>7 Betoog</td><td>Jouw oordeel in sterren, onderbouwd</td><td>± 30 min</td></tr>
+    <tr><td>8 Afronding</td><td>Zelftest, zelfevaluatie en je dossier</td><td>± 20 min</td></tr>
+  </table>
+  <div class="foot"><span></span><button class="btn" data-go="1">Start station 1 →</button></div>
+</section>
+<!-- ============ 1 OPWARMING ============ -->
+<section class="station" data-title="1 Opwarming" data-min="± 15 min">
+  <h2>Station 1 · Opwarming</h2>
+  <p class="meta">± 15 minuten</p>
+  <div class="goal"><b>Na dit station</b>Weet je wat je nog van het verhaal onthouden hebt en met welke vragen je blijft zitten.</div>
+  <h3 style="margin-top:0">Snelle inhoudscheck</h3>
+  <div class="quiz" data-quiz="warm"></div>
+  <h3>Jouw vragen bij het boek</h3>
+  <div class="task">
+    <p class="q"><b>1.1</b> Wat vond je onduidelijk bij het lezen van <i>Het Gouden Ei</i>? Noteer minstens twee vragen die je aan de leerkracht of klasgenoten zou willen stellen.</p>
+    <textarea data-k="t11" placeholder="Schrijf hier je vragen…"></textarea>
+  </div>
+  <div class="task">
+    <p class="q"><b>1.2</b> Met welke vraag blijf je achter na het lezen? Op welke vraag wil je op het einde van dit leerpad zeker een antwoord hebben?</p>
+    <textarea data-k="t12" placeholder="Mijn vraag…"></textarea>
+    <details><summary>Weet je het niet?</summary><p>Blijf je hangen bij het levend begraven worden? Bij de keuze van Rex om Lemorne te volgen? Bij de titel? Alles mag. Je komt in station 7 op deze vraag terug.</p></details>
+  </div>
+</section>
+<!-- ============ 2 BOUWSTENEN ============ -->
+<section class="station" data-title="2 Bouwstenen" data-min="± 35 min">
+  <h2>Station 2 · Bouwstenen van het verhaal</h2>
+  <p class="meta">± 35 minuten</p>
+  <div class="goal"><b>Na dit station</b>Kan je personages, ruimte, verteller en tijd in <i>Het Gouden Ei</i> analyseren en uitleggen wat de schrijver daarmee bereikt.</div>
+  <p>Je kent deze bouwstenen al van de vorige schooljaren. Hier pas je ze toe op één boek. Werk met je boek open naast je.</p>
+  <div class="task">
+    <p class="q"><b>2.1 Personages.</b> Rex, Lieneke, Saskia en Raymond Lemorne zijn de hoofdpersonages.<br>> Welke zijn <i>flat characters</i> en welke <i>round characters</i>?<br>> Welke personages krijgen de macht om te handelen (<i><b>agency</i></b>) in het verhaal?<br>Onderbouw met voorbeelden uit het boek.</p>
+    <textarea data-k="t21" rows="6" placeholder="
+    Rex is… omdat…
+    Lieneke is… omdat…
+    Saskia is… omdat…
+    Raymond Lermorne is… omdat…"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p><b>Flat character:</b> weinig eigenschappen, voorspelbaar, verandert niet. <br><b>Round character:</b> complex, soms tegenstrijdig, met een innerlijke ontwikkeling.<br><i><b>Agency:</b></i> wie neemt beslissingen die het verhaal vooruit duwen, en wie ondergaat vooral wat er gebeurt?</p>
+    </details>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Er is hier geen enkel juist antwoord, maar je indeling moet onderbouwd zijn. Controleer of je bij elk personage minstens één concreet voorbeeld gaf, en of je duidelijk maakte wie de plot bepaalt (wie zoekt, wie plant, wie voert uit) en wie vooral iets overkomt.</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>2.2 Ruimte.</b> Welke drie plaatsen zijn volgens jou het belangrijkst voor het verhaal? Welke sfeer roepen ze bij jou op, en hoe zorgt de schrijver daarvoor?</p>
+    <textarea data-k="t22" rows="5" placeholder="
+    Plaats 1: … sfeer: …
+    Plaats 2: … sfeer: …
+    Plaats 3: … sfeer: …"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Bij ruimte denk je aan: de plek zelf, de sfeer, de symbolische waarde en de relatie met de personages. Denk ook aan héél kleine ruimtes, zoals een auto, een kist of een beschutte inham aan zee. Lees fragment 4 in bijlage 1 nog eens.</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>2.3 Verteller.</b> Wie <b>vertelt</b> het verhaal? Is dat een personage uit de roman of iemand anders? Hoe weet je dat? Geef een uitgewerkt voorbeeld uit het boek.</p>
+    <textarea data-k="t23" rows="5"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Kijk naar het <b>vertelperspectief</b>: is er een ik-verteller of een hij/zij-verteller? Kijk ook naar <b>focalisatie</b>: door wiens ogen zie je de gebeurtenissen? Blijft dat altijd dezelfde persoon doorheen het verhaal?</p>
+    </details>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Een sterk antwoord: (1) benoemt de vertelvorm, (2) zegt dat de verteller zelf geen personage is, (3) geeft aan welke personages de gebeurtenissen om beurten “kleuren” (ook in het laatste hoofdstuk), en (4) verwijst met een fragment naar een concrete plek in de tekst.</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>2.4 Tijd.</b> Bespreek het verband tussen <b>verteltijd</b> en <b>vertelde tijd</b>. Hoe lang duurt het verhaal ongeveer, en hoe lang duurt het om het te lezen?</p>
+    <textarea data-k="t24" rows="4"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p><b>Verteltijd</b> = de tijd die het kost om het verhaal te vertellen of te lezen. <br><b>Vertelde tijd</b> = de tijd die het verhaal zelf beslaat.<br>Zoek in het boek een passage waarin veel tijd in weinig woorden wordt samengevat.</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>2.5 Chronologie.</b> De volgorde van de hoofdstukken is niet de volgorde waarin de gebeurtenissen zich “echt” afspeelden.<br>> Zet de hoofdstukken in chronologische volgorde (één trefwoord per hoofdstuk).<br>> Waarom brak de schrijver de chronologie? Welk effect bereikt hij?</p>
+    <textarea data-k="t25" rows="6" placeholder="a) …&#10;b) …"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Vraag je bij elk hoofdstuk af: wat weet de lezer hier al dat Rex nog niet weet? Welke spanning ontstaat als de lezer meer weet dan het personage? Welke vragen blijven open?</p>
+    </details>
+  </div>
+</section>
+<!-- ============ 3 THEMA ============ -->
+<section class="station" data-title="3 Thema" data-min="± 25 min">
+  <h2>Station 3 · Thema: wat wil Krabbé zeggen?</h2>
+  <p class="meta">± 25 minuten</p>
+  <div class="goal"><b>Na dit station</b>Kan je het thema van het boek in één zin formuleren en uitleggen hoe twee oude mythes daarmee samenhangen.</div>
+  <div class="def"><b>Thema</b> = de algemene grondgedachte van een literair werk. Dat is méér dan een onderwerp: een thema is een <i>hele zin</i> (een gedachte), geen woord.</div>
+  <div class="task">
+    <p class="q"><b>3.1 Eerste idee.</b> Formuleer zonder hulp het thema van het boek in één zin.</p>
+    <textarea data-k="t31" rows="2" placeholder="Volgens mij gaat het boek over de gedachte dat…"></textarea>
+  </div>
+  <h3>Twee mythes als sleutel</h3>
+  <p>Lees eerst de tekst in bijlage 2 en bekijk de video voor je verder gaat naar de volgende vragen.<br><br><b>De mythe van de missende helft</b> (Plato, in de mond van Aristophanes). Mensen waren ooit ronde wezens met twee gezichten en vier armen. Omdat ze te machtig werden, sneed Zeus ze doormidden. Lees de volledige tekst in <a href="https://docs.google.com/document/d/1G3gExFbfYSd2qfCROZzxR4AdH7v78a0lXeCfc5ETgQI/preview" target="_blank" rel="noopener">Bijlage 2 ↗</a>.</p>
+  <p><b>Orpheus en Eurydice.</b> De zanger Orpheus daalt af in de onderwereld om zijn gestorven vrouw Eurydice terug te halen. Hij mag haar meenemen op één voorwaarde: hij mag zich niet omdraaien om naar haar te kijken. Bekijk de video om de rest van de mythe te kennen.</p>
+  <iframe width="320" height="180" src="https://www.youtube.com/embed/RhaepLsP5eg?si=AapvlKtBaN3GWmuU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  <p class="meta">Tip: kennis van mythes helpt je bij het lezen van literatuur en kunst, omdat schrijvers er voortdurend naar verwijzen.</p>
+  <div class="task">
+    <p class="q"><b>3.2 Verbanden zoeken.</b> Welke elementen uit deze twee mythes herken je in <i>Het Gouden Ei</i>? Zoek minstens twee overeenkomsten en verwijs naar plaatsen in het boek.</p>
+    <textarea data-k="t32" rows="5"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Denk aan: wie zoekt wie? Wat wil Rex uiteindelijk bereiken (lees fragment 2 in bijlage 1)? Wat gebeurt er met een “helft” die achterblijft? Waar “daal” je af naar een soort onderwereld?</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>3.3 Kies het beste thema.</b> Welke formulering past volgens jou het best bij het boek? Leg uit waarom, en waarom de andere minder goed passen.</p>
+    <div class="chk"><input type="radio" name="thema" data-k="th_a" id="tha"><label for="tha">Misdaad loont niet.</label></div>
+    <div class="chk"><input type="radio" name="thema" data-k="th_b" id="thb"><label for="thb">Je kan niet verder leven zonder de mens van wie je houdt.</label></div>
+    <div class="chk"><input type="radio" name="thema" data-k="th_c" id="thc"><label for="thc">Reizen met de auto is gevaarlijk.</label></div>
+    <div class="chk"><input type="radio" name="thema" data-k="th_d" id="thd"><label for="thd">Liefde.</label></div>
+    <textarea data-k="t33" rows="4" placeholder="Ik kies … omdat …"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Formulering B sluit het best aan bij de gedachtegang die in de les gebruikt wordt: <i>de onmogelijkheid om voort te leven zonder je geliefde</i>. A en C zijn eerder onderwerpen of bijzaken, en D is één woord (een onderwerp), geen gedachte. Klopt jouw formulering uit opdracht 3.1 hiermee?</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>3.4 De titel.</b> Waarom koos Krabbé volgens jou voor de titel <i>Het Gouden Ei</i>? Schrijf een verklaring in twee à drie zinnen. (Je kan er in station 4 op terugkomen.)</p>
+    <textarea data-k="t34" rows="3"></textarea>
+  </div>
+</section>
+<!-- ============ 4 MOTIEVEN ============ -->
+<section class="station" data-title="4 Motieven" data-min="± 30 min">
+  <h2>Station 4 · Motieven</h2>
+  <p class="meta">± 30 minuten</p>
+  <div class="goal"><b>Na dit station</b>Kan je uitleggen wat een motief is, drie motieven in het boek aanwijzen en verbinden met het thema.</div>
+  <div class="task">
+    <p class="q"><b>4.1 Markeer het motief.</b> Hieronder staan drie fragmenten uit de roman waarin het gouden ei terugkeert. Sleep met je muis (of vinger) over de stukken tekst die dit terugkerende element bevatten/verklaren en klik op <b>“Markeer selectie”</b>. Klik op een markering om ze te wissen. Doe dit voor elk van de drie fragmenten.</p>
+    <p class="fraghint">Lukt selecteren en markeren niet op je toestel? Kopieer dan het relevante stukje tekst naar het antwoordveld onderaan.</p>
+    <div class="fragbox">
+      <div class="fragnr"><b>Fragment 1 (p. 14)</b></div>
+      <div class="fragtext" id="frag1" data-frag>‘Er was toen op de landweg in Italië meer aan de hand geweest. Toen hij met zijn jerrycan terugkwam had hij Saskia volkomen overstuur aangetroffen. Als een vechtend dier had ze zich aan hem vastgeklampt, snikkend dat hij haar nooit meer zo alleen mocht laten. De beklemming in het kleine zwarte hok van de auto had haar bijna gek van angst gemaakt; het was even eenzaam geweest als in haar nachtmerrie van het Gouden Ei. Toen ze klein was had ze eens gedroomd dat ze opgesloten zat in een gouden ei dat door het heelal vloog. Alles was zwart, er waren niet eens sterren, ze zou er altijd in moeten zitten, en ze kon niet doodgaan. Er was maar één hoop. Er vloog nog zo’n gouden ei door de ruimte, als ze tegen elkaar botsten zouden ze allebei vernietigd zijn, dan was het afgelopen. Maar dat heelal was zo groot!</div><br>
+      <div class="fragtools">
+        <button type="button" class="btn ghost small" data-mark="frag1">Markeer selectie</button>
+        <button type="button" class="btn ghost small" data-clear="frag1">Wis markeringen</button>
+      </div>
+    </div>
+    <div class="fragbox">
+      <div class="fragnr"><b>Fragment 2 (p. 25)</b></div>
+      <div class="fragtext" id="frag2" data-frag>Ten slotte bleef hij in de auto zitten, starend naar het blocnootje met getallen en naar het briefje onder de ruitenwisser dat af en toe een punt bewoog. Willen slapen, niet kunnen slapen en slapen werden samen één gedachte. Saskia overkwam op dit moment iets gruwelijks. Het was alsof hij voelde wat zij nu voelde – de angst en de eenzaamheid van het Gouden Ei, en alsof hij daarmee zijn wens eindelijk in vervulling was gegaan: één met haar worden.</div><br>
+      <div class="fragtools">
+        <button type="button" class="btn ghost small" data-mark="frag2">Markeer selectie</button>
+        <button type="button" class="btn ghost small" data-clear="frag2">Wis markeringen</button>
+      </div>
+    </div>
+    <div class="fragbox">
+      <div class="fragnr"><b>Fragment 3 (p. 93)</b></div>
+      <div class="fragtext" id="frag3" data-frag>Hij lag in het zwart, met niets waar hij zijn angst aan kon hechten. Hij ging overeind zitten maar stootte zijn voorhoofd en viel terug. Hij kwam zacht terecht en voelde met zijn handen langs zijn lichaam: hij lag op een matras. Een eenpersoonsmatras; de randen waren vlak naast hem. Er was geen geluid, de lucht was zwaar en koud. Links naast de matras was een wand. Hij wilde aan zijn hoofd voelen of hij zich erg gestoten had maar bij die beweging raakte hij met zijn knokkels iets boven zich. Hij tastte omhoog – het was geen balk die hij had geraakt, het was een soort houten plafond, nauwelijks twee handbreedten boven zijn gezicht. Hij wist het al. Het was te erg om te weten. (…) Hij lag in een kist, levend begraven. Dat dit Saskia was aangedaan! Dat zij hier zo had gelegen, smekend dat hij haar zou komen redden, tegelijk zeker wetend dat hij niet kon komen… De eenzaamheid hiervan!</div><br>
+      <div class="fragtools">
+        <button type="button" class="btn ghost small" data-mark="frag3">Markeer selectie</button>
+        <button type="button" class="btn ghost small" data-clear="frag3">Wis markeringen</button>
+      </div>
+    </div>
+    <p class="q" style="margin-top:1em"><b>Verklaar je keuze.</b> Wat hebben de fragmenten gemeenschappelijk? Waarom koos je net deze stukken tekst als bewijs voor het motief van het gouden ei? (Kopieer hier je tekstbewijs als markeren niet lukte.)</p>
+    <textarea data-k="t41" rows="4" placeholder="Ik markeerde … omdat …"></textarea>
+  </div>
+<div class="task">
+    <p class="q"><b>4.2 Motief 1 🥚 Het gouden ei zelf.</b> Waaraan denk je bij een ei? En waarvoor staat het gouden ei in dit boek? Denk aan Saskia’s droom, aan de kist en aan de andere helft die “nog zo’n ei” is.</p>
+    <textarea data-k="t43" rows="4"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Gewoonlijk staat een ei voor leven, geboorte en bescherming. Hier is het net omgekeerd: het gouden ei is een gesloten ruimte vol duisternis en angst, waarin je eeuwig eenzaam rondzweeft. De enige hoop is het botsen met een tweede ei. Vergelijk met de kist in fragment 3: Rex ervaart dezelfde eenzaamheid. Past dit bij het thema uit station 3?</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>4.3 Definieer.</b> Wat denk je dat een <b>motief</b> is? Formuleer je eigen definitie voor je verder leest.</p>
+    <textarea data-k="t42" rows="2" placeholder="Een motief is…"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Een <b>motief</b> is een <b>herhaald</b> en <b>betekenisvol</b> element in één of meerdere werken dat helpt om het centrale idee of het <b>thema</b> te begrijpen. De herhaling zorgt ervoor dat de lezer het als belangrijk ervaart. Zit “herhaald” in je definitie? En “helpt het thema begrijpen”?</p>
+    </details>
+  </div>
+<div class="task">
+    <p class="q"><b>4.4 Motief 2 🗝️ De sleutel.</b> Waaraan denk je bij een sleutel? Wat doet het? Wat kan je ermee bereiken? Waarvoor zou het symbool kunnen staan?</p>
+    <textarea data-k="t44a" rows="2" placeholder="Een sleutel…"></textarea>
+    <p class="q" style="margin-top:1em">Waar komt een sleutel zoal voor in het verhaal? Ga op zoek in je boek.</p>
+    <textarea data-k="t44b" rows="3"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>De sleutel komt voor op minstens drie plekken in het verhaal:<br>&gt; Saskia neemt de autosleutels mee naar het tankstation voor haar verdwijning.<br>&gt; Lemorne lokt Saskia mee met een sleutelhanger.<br>&gt; De baai op vakantie in Italië wordt beschreven als de vorm van een sleutelgat.</p>
+    </details>
+    <p class="q" style="margin-top:1em">Verbind nu je eigen interpretatie van de sleutel met hoe en waar die voorkomt in het verhaal. Hoe past het <b>motief</b> van de sleutel binnen de <b>thematiek</b>?</p>
+    <textarea data-k="t44c" rows="3" placeholder="In dit verhaal staat de sleutel symbool voor ... Dit past in de thematiek van ... omdat ..."></textarea>
+  </div>
+  <div class="task">
+    <p class="q"><b>4.5 Motief 3 ♾️ Het getal 8.</b> Ga zelf op zoek in je boek: waar kom je het getal 8 (of 80, 16…) tegen? Noteer er minstens drie. Klap daarna de lijst open en controleer wat je gemist hebt.</p>
+    <textarea data-k="t45" rows="4" placeholder="Bijvoorbeeld: … (p. …)"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <ul>
+        <li>Het jongetje bij het videospel is 8 jaar</li>
+        <li>Saskia verdwijnt om 8 uur ’s avonds, aan de 8ste paal</li>
+        <li>Rex loopt in ellipsen rond twee gebouwen, samen een liggende 8</li>
+        <li>Acht jaar na de verdwijning</li>
+        <li>Raymond is 16 jaar</li>
+        <li>De brief telt 8 bladzijden</li>
+        <li>80 km van het tankstation</li>
+        <li>Het bedrag om Saskia te vinden is 80.000 euro</li>
+      </ul>
+       </details><br>
+      <p>Een liggende 8 is het teken voor oneindigheid. Wat betekent dat voor de liefde tussen Rex en Saskia?</p>
+    <textarea data-k="t45b" rows="2" placeholder="Wat betekent het getal 8 binnen het thema volgens jou?"></textarea>
+  </div>
+  <h3>Check: is het een motief?</h3>
+  <div class="quiz" data-quiz="motief"></div>
+  <div class="task">
+    <p class="q"><b>4.6</b> Zoek zelf een vierde motief in het boek. Leg uit hoe het herhaald wordt en wat het toevoegt aan het thema.</p>
+    <textarea data-k="t46" rows="4"></textarea>
+  </div>
+</section>
+<!-- ============ 5 FICTIE ============ -->
+<section class="station" data-title="5 Metafictionele lezing" data-min="± 25 min">
+  <h2>Station 5 · Metafictionele lezing</h2>
+  <p class="meta">± 25 minuten</p>
+  <div class="goal"><b>Na dit station</b>Kan je uitleggen wat metafictie is en met voorbeelden tonen hoe <i>Het Gouden Ei</i> de grens tussen fictie en werkelijkheid onder spanning zet.</div>
+  <p>Je weet nog niet wat <b>metafictie</b> betekent. In dit station ontdek je dat zelf, aan de hand van wat Tim Krabbé over zijn eigen boek zei.</p>
+<div class="fragbox">
+      <div class="fragnr"><b>Bronfragment — Tim Krabbé over <i>Het Gouden Ei</i> in een interview</b></div>
+    <div class="fragtext">Dood en liefde — de twee thema’s van het boek — zijn verbonden met het gouden ei. Als de dood een gouden ei is, dan rest na de dood slechts de totale eenzaamheid.<br><br>Tegenover Yvonne Kroonenberg formuleerde Krabbé het thema van zijn boek als: "dat er geen dood is en dat het einde die tocht in <i>Het gouden ei</i> zal zijn. Dat je niet kunt sterven en eeuwig eenzaam moet zijn." Maar in de droom wordt de mogelijkheid opengelaten dat eens de twee gouden eieren in het eindeloze heelal elkaar toch zullen ontmoeten en er dus ooit verlossing zal zijn.<br><br>Tegen Henk van Gelder omschreef Krabbé het thema dan ook als: "hoe moeilijk het is de liefde te verwezenlijken en dat ’t misschien alleen maar kan lukken in een denkbeeldige wereld."</div>
+  </div>
+<div class="task">
+    <p class="q"><b>5.1 Lees aandachtig.</b> Beantwoord onderstaande vragen bij het bronfragment.</p>
+    <p class="q" style="margin-top:1em">a) Wat betekent “de dood” volgens Krabbé’s citaat aan Yvonne Kroonenberg? Wat volgt er na de dood, en hoe lang duurt dat?</p>
+    <textarea data-k="t5a" rows="3"></textarea>
+    <p class="q" style="margin-top:1em">b) Wat zegt Krabbé’s citaat aan Henk van Gelder over de liefde? Waar, volgens hem, kan liefde <i>wél</i> lukken?</p>
+    <textarea data-k="t5b" rows="3"></textarea>
+    <p class="q" style="margin-top:1em">c) Denk na over antwoord b. Als liefde volgens de auteur zelf misschien alleen lukt “in een denkbeeldige wereld”, wat zou dat kunnen betekenen voor hóé hij dit boek geschreven heeft? Waar zou hij, denk je, de grens tussen “echt gebeurd” en “verbeeld” in het verhaal wel eens opzettelijk vaag kunnen houden?</p>
+    <textarea data-k="t5c" rows="4" placeholder="Ik vermoed dat…"></textarea>
+  </div>
+<div class="task">
+    <p class="q"><b>5.2 Formuleer je eigen definitie.</b> Op basis van wat je hierboven ontdekte: wat is volgens jou <b>metafictie</b>? Probeer het te formuleren zonder het woord op te zoeken - gebruik woordenschatstrategieën.</p>
+    <textarea data-k="t5def" rows="3" placeholder="Metafictie is wanneer een verhaal…"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p><b>Metafictie</b> is fictie die er de lezer zelf op wijst dat het fictie is: het verhaal denkt na over wat echt is en wat niet, en drijft typische verteltechnieken (zoals motieven) soms erg ver door.<br><br>Bij <i>Het Gouden Ei</i> past dat bij wat Krabbé zelf zei: als liefde in de werkelijkheid nauwelijks te verwezenlijken is, dan kan de roman die liefde alleen laten “lukken” door de grens tussen droom, verbeelding en werkelijkheid te laten vervagen.</p>
+    </details>
+  </div>
+  <p>Ga nu zelf op zoek: waar in de roman laat Krabbé die grens tussen fictie en werkelijkheid vervagen?</p>
+  <div class="task">
+    <p class="q"><b>5.1 Motief 4 🚀 Ruimtevaart.</b> Zoek de volgende fragmenten op:<br>
+    <ul>
+        <li>de openingszin (p. 7 / p. 5)</li>
+        <li>Saskia’s droom (p. 14 / p. 10)</li>
+        <li>Rex “eenzaam als een achtergelaten ruimtewandelaar” (p. 23 / p. 17)</li>
+        <li>de slotzin (p. 67)</li>
+      </ul>
+   Wat valt op? Waarom kiest Krabbé telkens voor beelden uit de ruimte?</p>
+    <textarea data-k="t51" rows="4"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Wat heb je nodig om aan de alledaagse werkelijkheid te ontsnappen? Is de ruimte een veilige plek of een bedreigende? Kijk hoe het boek begint, en hoe het eindigt.</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>5.2 Motief 5 🎲 Het spel.</b> Zoek de volgende fragmenten op:
+    <ul>
+        <li>het computerspel (p. 33 / p. 21)</li>
+        <li>de badmintonwedstrijd (p. 38 / p. 23)</li>
+        <li>het “spel” van Rex met Saskia (p. 13 / p. 9)</li>
+      </ul>
+   Wat hebben ze gemeen, en hoe hangen ze samen met het ruimtevaartmotief?</p>
+    <textarea data-k="t52" rows="4"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Let op de woorden die gekozen worden: Verbluft staarde iedereen naar de <b>shuttle</b> die rechtop was blijven staan, bovenop een zandpolletje, als een tentoongestelde <b>maanlander</b>.<br><br>In een spel kan je winnen, in een fictieve wereld heb je regels en overwinningen. Wie wil er winnen? En wat gebeurt er als het spel voorbij is (“game over”, p. 60)?</p>
+    </details><br>
+     <p class="q">Lees het fragment over de droom van Rex in het restaurant (p. 93 / p. 64). Vergelijk met het meisje dat een eend op wieltjes voorttrekt (p. 10 / p. 7).<br>> Wat gebeurt er met de eend in de droom?<br>> Wat betekent dat voor de verhouding tussen fictie en werkelijkheid?</p>
+    <textarea data-k="t53" rows="5"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Het speelgoeddier is vastgebonden en geïsoleerd. In de droom breekt de eend los en vliegt weg: de fictie “ontsnapt” aan het isolement. Zo lijkt de fictie de werkelijkheid in te halen, net zoals Saskia’s nachtmerrie werkelijkheid wordt voor Rex (de kist, het omgekeerde van het gouden ei, waarin hij toch een soort vrijheid vindt). De verteller laat de werkelijkheid zelf op een droom lijken.</p>
+    </details>
+  </div>
+<h3>Check: begrijp je metafictie?</h3>
+  <div class="quiz" data-quiz="metafictie"></div>
+  <div class="task">
+    <p class="q"><b>5.4 Synthese.</b> Schrijf een kort <b>betoog</b> van 4 à 5 zinnen: <i>Hoe zet Krabbé de grens tussen fictie en werkelijkheid onder spanning?</i> Gebruik minstens <b>twee motieven en één citaat</b> of verwijzing met paginanummer.</p>
+    <textarea data-k="t54" rows="6" placeholder="Krabbé zet de grens tussen fictie en werkelijkheid onder spanning door…"></textarea>
+  </div>
+</section>
+<!-- ============ 6 MAATSCHAPPIJ ============ -->
+<section class="station" data-title="6 Maatschappelijke lezing" data-min="± 30 min">
+  <h2>Station 6 · Hoe kijkt het boek naar mensen?</h2>
+  <p class="meta">± 30 minuten</p>
+  <div class="goal"><b>Na dit station</b>Kan je een personage, een verteller en een auteur uit elkaar houden, en een onderbouwd standpunt innemen over de plaats van omstreden boeken op de leeslijst.</div>
+  <div class="note"><b>Let op:</b> in dit station bekijk je passages met stereotypen en denigrerende beschrijvingen van mensen. Je analyseert ze kritisch. Dat betekent niet dat je ze goedkeurt. Er is geen “juist” standpunt, wel beter en minder goed onderbouwde standpunten.</div>
+  <div class="task">
+    <p class="q"><b>6.1 Eerste reactie.</b> Wat vind je van het gedrag van Raymond Lemorne? Hoe sta je tegenover Rex Hofman? Schrijf spontaan drie à vier zinnen.</p>
+    <textarea data-k="t61" rows="4"></textarea>
+  </div>
+  <div class="task">
+    <p class="q"><b>6.2 Passages onderzoeken.</b> Zoek deze passages in je boek:
+     <ul>
+        <li>het meisje met de speelgoedeend (p. 10 / p. 7)</li>
+        <li>de vrouw in het damestoilet (p. 18 / p. 13)</li>
+        <li>de man op het strand die als een “Birmese prins” wordt beschreven (p. 34 / p. 22)</li>
+        <li>het meisje op het strand (p. 34 / p. 22)</li>
+        <li>een zwarte pesroon op het strand (p. 10 / p. 7)</li>
+      </ul>
+    Wie kijkt hier? Welke woorden zijn stereotiep of waarderend? Wat valt je op?</p>
+    <textarea data-k="t62" rows="6"></textarea>
+    <details><summary>Hulp nodig?</summary>
+      <p>Wie ziet wat? Het is niet altijd de verteller die dit vindt: het kan zijn dat de blik van Rex wordt weergegeven (<b>focalisatie</b>). Waaraan merk je dat?</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>6.3 Racistisch?</b> Zou je het personage van Rex racistisch noemen? Onderbouw je antwoord en maak het onderscheid tussen <b>personage</b>, <b>verteller</b> en <b>auteur</b>.</p>
+    <textarea data-k="t63" rows="5"></textarea>
+    <details><summary>Controleer enkel als je je antwoord hierboven al hebt geschreven!</summary>
+      <p>Een sterk antwoord: (1) zegt wat je onder “racistisch” verstaat, (2) verwijst naar concrete passages, (3) vraagt of de tekst zich ervan distantieert of niet, en (4) maakt duidelijk dat een personage niet automatisch de auteur is, maar dat het wél mag uitmaken welke blik een boek toont zonder die te bevragen.</p>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>6.4 Vrouwen in het boek.</b> Hoe worden Saskia en Lieneke voorgesteld door Rex en door Lemorne? Welke <i><b>agency</b></i> krijgen de vrouwelijke personages? Is er een uitzondering?</p>
+    <textarea data-k="t64" rows="5"></textarea>
+    <details><summary>Waar kan je op letten?</summary>
+      <ul>
+        <li>Hoe beschrijven Rex en Lemorne vrouwen? Zie de nadruk op “meisjes”, uiterlijk en huishoudelijke bezigheden.</li>
+        <li>Wat vindt Lemorne van vrouwen die hij “te mannelijk” vindt (p. 60)?</li>
+        <li>Wiens standpunt krijg je in het boek te zien? Wat is de uitzondering?</li>
+      </ul>
+    </details>
+  </div>
+  <div class="task">
+    <p class="q"><b>6.5 Thema of blinde vlek?</b> Passen deze voorstellingen bij het thema van het boek? Zo niet: kan het zijn dat de visie van de auteur “doorsijpelt”? Kies een stelling en verdedig ze.</p>
+    <div class="chk"><input type="radio" name="p65" data-k="p65a" id="p65a"><label for="p65a">De voorstellingen passen bij het thema (bv. omdat ze de blik en de obsessie van Rex tonen).</label></div>
+    <div class="chk"><input type="radio" name="p65" data-k="p65b" id="p65b"><label for="p65b">De voorstellingen hebben weinig met het thema te maken en verraden vooral de tijdsgeest of blik van de auteur.</label></div>
+    <textarea data-k="t65" rows="6" placeholder="Vergeet niet nog eens het thema van het boek expliciet te vermelden..."></textarea>
+  </div>
+  <h3>Moet je dit boek nog lezen?</h3>
+  <p>In de voorbije jaren kwam <i>Het Gouden Ei</i> in opspraak. Er gingen stemmen op om het van leeslijsten en uit bibliotheken te halen. Dit debat speelt bij veel boeken. Hieronder lees je de sterkste argumenten van beide kanten.</p>
+  <div class="two">
+    <div class="card"><b>Behouden en bespreken</b><p>Wie een boek schrapt, sluit het gesprek erover af. Lezers leren net kritisch lezen door met lastige teksten te worstelen. En je kan de blik van een verteller of personage onderzoeken zonder die over te nemen.</p></div>
+    <div class="card"><b>Schrappen of vervangen</b><p>Leeslijsten zijn keuzes. Er zijn genoeg boeken zonder denigrerende beelden. Wie ze telkens weer leest, bevestigt ze. Bovendien voelen lezers uit de beschreven groepen zich aangesproken op een manier die kwetsend kan zijn.</p></div>
+  </div>
+  <div class="task">
+    <p class="q"><b>6.6 Jouw standpunt.</b> Moet <i>Het Gouden Ei</i> op de leeslijst blijven? Duid je standpunt aan en schrijf minstens twee argumenten, waarvan één met een voorbeeld uit het boek. Noem ook één tegenargument.</p>
+    <div class="chk"><input type="radio" name="p66" data-k="p66a" id="p66a"><label for="p66a">Ja, op de leeslijst laten.</label></div>
+    <div class="chk"><input type="radio" name="p66" data-k="p66b" id="p66b"><label for="p66b">Nee, van de leeslijst halen.</label></div>
+    <div class="chk"><input type="radio" name="p66" data-k="p66c" id="p66c"><label for="p66c">Ja, maar met begeleiding of context.</label></div>
+    <textarea data-k="t66" rows="6"></textarea>
+  </div>
+  <div class="task">
+    <p class="q"><b>6.7</b> Lees de <a href="https://harpers.org/a-letter-on-justice-and-open-debate/" target="_blank" rel="noopener">Harper’s Letter ↗</a> (Engels) over vrije meningsuiting. Welke argumenten daaruit zijn bruikbaar voor het debat over dit boek? Wat zouden critici ertegen inbrengen?</p>
+    <textarea data-k="t67" rows="4"></textarea>
+  </div>
+</section>
+<!-- ============ 7 BETOOG ============ -->
+<section class="station" data-title="7 Betoog" data-min="± 30 min">
+  <h2>Station 7 · Jouw oordeel</h2>
+  <p class="meta">± 30 minuten</p>
+  <div class="goal"><b>Na dit station</b>Heb je een gemotiveerd oordeel over <i>Het Gouden Ei</i> geschreven in een correcte betoogstructuur.</div>
+  <div class="task">
+    <p class="q"><b>7.1 Sterren.</b> Hoeveel sterren geef je <i>Het Gouden Ei</i>?</p>
+    <div class="stars" id="stars"></div>
+  </div>
+  <div class="task">
+    <p class="q"><b>7.2 Betoog.</b> Beargumenteer je oordeel. Wat vond je goed, wat minder goed? Gebruik begrippen uit dit leerpad (thema, motief, verteller, metafictie…) en voorbeelden uit het boek (met paginanummer). Streef naar 150 à 250 woorden.</p>
+    <details open><summary>Betoogstructuur</summary>
+      <ol>
+        <li><b>Inleiding:</b> je stelling (je oordeel in sterren) in één zin.</li>
+        <li><b>Argument 1</b> + voorbeeld uit het boek.</li>
+        <li><b>Argument 2</b> + voorbeeld uit het boek.</li>
+        <li><b>Tegenargument + weerlegging</b> (waarom je oordeel toch blijft staan).</li>
+        <li><b>Slot:</b> conclusie en herhaling van je stelling.</li>
+      </ol>
+    </details><br>
+    <textarea data-k="t72" data-count rows="12" placeholder="Mijn oordeel over Het Gouden Ei…"></textarea>
+    <div class="wc"><span id="wc">0</span> woorden</div>
+  </div>
+  <div class="task">
+    <p class="q"><b>7.3 Zelfcontrole.</b> Vink af wat klopt.</p>
+    <div class="chk"><input type="checkbox" data-k="c1" id="c1"><label for="c1">Mijn stelling staat duidelijk in de inleiding.</label></div>
+    <div class="chk"><input type="checkbox" data-k="c2" id="c2"><label for="c2">Ik heb minstens twee argumenten.</label></div>
+    <div class="chk"><input type="checkbox" data-k="c3" id="c3"><label for="c3">Elk argument heeft een voorbeeld uit het boek, met paginanummer.</label></div>
+    <div class="chk"><input type="checkbox" data-k="c4" id="c4"><label for="c4">Ik gebruikte minstens twee begrippen uit dit leerpad.</label></div>
+    <div class="chk"><input type="checkbox" data-k="c5" id="c5"><label for="c5">Ik weerlegde een tegenargument.</label></div>
+    <div class="chk"><input type="checkbox" data-k="c6" id="c6"><label for="c6">Mijn slot herneemt mijn stelling.</label></div>
+    <div class="chk"><input type="checkbox" data-k="c7" id="c7"><label for="c7">Ik las mijn tekst na op spelling en zinsbouw.</label></div>
+  </div>
+  <div class="task">
+    <p class="q"><b>7.4 Terug naar je vraag.</b> Kijk terug naar opdracht 1.2. Kan je je vraag nu beantwoorden? Wat is je antwoord, of wat blijft open?</p>
+    <textarea data-k="t75" rows="4"></textarea>
+  </div>
+</section>
+<!-- ============ 8 AFRONDING ============ -->
+<section class="station" data-title="8 Afronding" data-min="± 20 min">
+  <h2>Station 8 · Afronding</h2>
+  <p class="meta">± 20 minuten</p>
+  <h3 style="margin-top:0">Zelftest</h3>
+   <div class="task">
+    <p class="q"><b>Alle motieven samen.</b> Je kwam intussen vijf motieven tegen: het gouden ei, de sleutel, het getal 8, ruimtevaart en spel. Vul voor elk motief <b>in eigen woorden</b> aan wat het inhoudt en hoe het het overkoepelende thema ondersteunt.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Motief</th><th>Wat houdt het in?</th><th>Hoe ondersteunt het het thema?</th></tr>
+        <tr><td>Het gouden ei</td><td><textarea class="cellta" data-k="tab_ei_1" aria-label="Gouden ei: wat houdt het in?"></textarea></td><td><textarea class="cellta" data-k="tab_ei_2" aria-label="Gouden ei: verband met thema"></textarea></td></tr>
+        <tr><td>De sleutel</td><td><textarea class="cellta" data-k="tab_sleutel_1" aria-label="Sleutel: wat houdt het in?"></textarea></td><td><textarea class="cellta" data-k="tab_sleutel_2" aria-label="Sleutel: verband met thema"></textarea></td></tr>
+        <tr><td>Het getal 8</td><td><textarea class="cellta" data-k="tab_acht_1" aria-label="Getal 8: wat houdt het in?"></textarea></td><td><textarea class="cellta" data-k="tab_acht_2" aria-label="Getal 8: verband met thema"></textarea></td></tr>
+        <tr><td>Ruimtevaart</td><td><textarea class="cellta" data-k="tab_ruimte_1" aria-label="Ruimtevaart: wat houdt het in?"></textarea></td><td><textarea class="cellta" data-k="tab_ruimte_2" aria-label="Ruimtevaart: verband met thema"></textarea></td></tr>
+        <tr><td>Spel</td><td><textarea class="cellta" data-k="tab_spel_1" aria-label="Spel: wat houdt het in?"></textarea></td><td><textarea class="cellta" data-k="tab_spel_2" aria-label="Spel: verband met thema"></textarea></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="quiz" data-quiz="end"></div>
+  <h3>Zelfevaluatie</h3>
+  <p>Hoe zeker ben je van elk doel?</p>
+  <div id="selfeval"></div>
+  <div class="task">
+    <p class="q"><b>8.1 Wat neem ik mee?</b> Wat heb je geleerd? Waar heb je nog hulp bij nodig? Wat zou je aan de leerkracht willen vragen?</p>
+    <textarea data-k="t81" rows="4"></textarea>
+  </div>
+  <h3>Jouw dossier</h3>
+  <p>Klik op de knop om een Word-document met al je antwoorden te downloaden. Upload dat bestand daarna naar je Google Drive (Drive zet het automatisch om in een Google Doc) of dien het rechtstreeks in bij je leerkracht.</p>
+  <button class="btn" id="mkdos" type="button">Stel mijn dossier samen</button>
+  <textarea id="dos" rows="10" readonly style="margin-top:12px" placeholder="Hier verschijnt een leesbare versie van je dossier…"></textarea>
+  <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="dldoc" type="button">Download als Word-document (.doc)</button><button class="btn ghost" id="cpdos" type="button">Kopieer als tekst</button></div>
+  <div class="msg" id="dosmsg" role="status"></div>
+</section>
+</main>
+<script>
+(function(){
+  var KEY='hge-leerpad-v1';
+  var S={a:{},done:{},quiz:{},rate:{},stars:0,name:'',cur:0};
+  try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);for(var k in p){S[k]=p[k];}}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+  var QUIZ={
+    warm:[
+      {q:'Waar verdwijnt Saskia?',o:['Op een tankstation langs de snelweg','In een hotel aan zee','Op een camping in Italië','In een winkelcentrum'],c:0,e:'Ze verdwijnt bij een tankstation, terwijl Rex de auto laat staan.'},
+      {q:'Wie lokt Saskia weg?',o:['Rex Hofman','Raymond Lemorne','Lieneke','Een onbekende toerist'],c:1,e:'Raymond Lemorne lokt haar met een sleutelhanger met een R op de auto in.'},
+      {q:'Welke sport wordt er door Rex en Lieneke gespeeld op vakantie?',o:['Badminton','Tennis','Golf','Petanque'],c:0,e:'Ze spelen een badmintonwedstrijd.'},
+      {q:'Hoe oud is de jongen waarmee Rex op de videokast speelt?',o:['6','8','9','10'],c:1,e:'Het jongentje is 8 jaar oud.'},
+      {q:'Hoe komt het gouden ei voor het eerst voor in het boek?',o:['In een boek dat een van de personages leest','Bij de ontvoering van Rex','Enkel in de titel van het boek','In een droom van Saskia'],c:3,e:'Saskia droomde vroeger als kind dat ze oneindig zweefde door de ruimte in een gouden ei.'},
+      {q:'Wat is het beroep van het hoofdpersonage?',o:['Regisseur','Schrijver','Leerkracht','Weten we niet'],c:1,e:'Rex is schrijver, journalist en dichter tegelijk.'},
+      {q:'Hoe laat is het wanneer Rex definitief beseft dat hij Saskia niet vindt in het tankstation?',o:['19u','20u','21u','22u'],c:1,e:'Het is 20u wanneer Rex Saskia niet meer vindt.'},
+      {q:'Wat overkomt Rex uiteindelijk?',o:['Hij vindt Saskia en gaat met haar naar huis','Hij wordt verdoofd en wordt levend begraven','Hij wordt gearresteerd','Hij verhuist naar Italië'],c:1,e:'Hij wordt verdoofd en wordt wakker in een kist, net als Saskia eerder.'},
+      {q:'Vanuit wiens standpunt wordt het laatste hoofdstuk verteld?',o:['Rex','Saskia','Lieneke','Lemorne'],c:2,e:'Het laatste hoofdstuk toont de gebeurtenissen door de ogen van Lieneke.'}
+    ],
+    motief:[
+      {q:'Welke uitspraak past bij een motief?',o:['Een herhaald, betekenisvol element dat helpt om het thema te begrijpen','De plaats waar het verhaal zich afspeelt','De samenvatting van het verhaal','De mening van de lezer'],c:0,e:'De herhaling maakt dat je het element als belangrijk ervaart.'},
+      {q:'Waarvoor staat de liggende 8 in dit verhaal?',o:['Voor het aantal personages','Voor oneindigheid, dus de oneindige liefde','Voor het aantal hoofdstukken','Voor het jaar waarin het verhaal zich afspeelt'],c:1,e:'Een liggende 8 is het teken voor oneindigheid.'},
+      {q:'Welk verband heeft het sleutelmotief met het thema?',o:['Het verwijst naar auto’s','Het staat voor openen en sluiten, opgesloten zijn, eenzaamheid','Het verwijst naar geld','Het heeft er geen verband mee'],c:1,e:'De sleutel verbindt raadsel, opsluiting en eenzaamheid met het thema.'}
+    ],
+    metafictie:[
+      {q:'Wat is de kern van metafictie?',o:['Fictie die zich in de ruimte afspeelt','Fictie die de lezer erop wijst dat het fictie is, en het verschil tussen echt en verbeeld bevraagt','Een verhaal dat volledig op ware feiten berust','Een verhaal zonder verteller'],c:1,e:'Metafictie laat het verhaal zelf nadenken over wat echt is en wat niet.'},
+      {q:'Waar kan liefde volgens Krabbé misschien alleen lukken?',o:['In een denkbeeldige (verbeelde) wereld','In een verre toekomst','Enkel na de dood','Enkel in Italië'],c:0,e:'Krabbé zei dat liefde in de werkelijkheid moeilijk te verwezenlijken is, en misschien alleen lukt in een verbeelde wereld.'},
+      {q:'Wat stelt Krabbé in het citaat aan Yvonne Kroonenberg over de dood in zijn boek?',o:['De dood bestaat niet echt: het einde is een eeuwige, eenzame tocht in het gouden ei','De dood is een bevrijding','Iedereen sterft uiteindelijk gelukkig','De dood komt niet aan bod in het boek'],c:0,e:'Volgens Krabbé is er geen dood: wat rest is de eeuwige eenzaamheid van het gouden ei.'},
+      {q:'Welk element in het boek laat het duidelijkst de grens tussen droom en werkelijkheid vervagen?',o:['De badmintonwedstrijd','De eend die in de droom van Rex loskomt en wegvliegt','Het bezoek aan het tankstation','De naam van de auto'],c:1,e:'Het vastgebonden speelgoeddier uit de realiteit “ontsnapt” in de droom: fictie en werkelijkheid lopen door elkaar.'},
+      {q:'Waarom gebruikt Krabbé herhaaldelijk beelden uit de ruimtevaart?',o:['Om aan te tonen dat het boek science fiction is','Om de eenzaamheid en het ontsnappen aan de werkelijkheid te verbeelden','Om de tijdsperiode van het boek te tonen','Om spanning tussen twee personages te vermijden'],c:1,e:'De ruimte staat voor eindeloze eenzaamheid en het loskomen van de alledaagse werkelijkheid, net als het gouden ei.'}
+    ],
+    end:[
+      {q:'Wat is een thema?',o:['Een herhaald onderwerp','De algemene grondgedachte van een literair werk','De plaats van de handeling','De samenvatting van het boek'],c:1,e:'Een thema is een gedachte (een hele zin) en geen onderwerp of één woord.'},
+      {q:'Wat is het verschil tussen een flat en een round character?',o:['Flat is klein, round is groot','Flat is eendimensionaal en verandert niet, round is complex en ontwikkelt zich','Flat is de held, round is de schurk','Er is geen verschil'],c:1,e:'Round characters hebben tegenstrijdige eigenschappen en een ontwikkeling.'},
+      {q:'Wat is metafictie?',o:['Fictie die zich afspeelt in de ruimte','Fictie die de lezer erop wijst dat het fictie is en het verschil tussen echt en niet echt bevraagt','Een verhaal dat op een waargebeurd verhaal is gebaseerd','Een verhaal zonder personages'],c:1,e:'Bij metafictie ligt de nadruk op de spanning tussen fictie en werkelijkheid.'},
+      {q:'Een personage in een roman heeft racistische opvattingen. Wat volgt daaruit?',o:['De auteur is zeker racistisch; dit is een weerspiegeling van zijn denken','Niets: je moet nagaan hoe de tekst het personage voorstelt','De roman moet verboden worden','Het personage is dan automatisch een flat character'],c:1,e:'Personage, verteller en auteur zijn niet hetzelfde. Analyseer de tekst voor je conclusies trekt.'},
+      {q:'Wat is het effect van een verstoorde chronologie in dit boek?',o:['Het boek wordt korter','Er ontstaat spanning in het verhaal','Het verhaal wordt minder ingewikkeld','Er is geen effect'],c:1,e:'De lezer krijgt informatie die Rex niet heeft: dat zorgt voor spanning en onbehagen.'},
+      {q:'Wat is de verhouding tussen verteltijd en vertelde tijd in dit boek?',o:['De verteltijd is veel langer dan de vertelde tijd','De verteltijd is veel korter dan de vertelde tijd','Ze zijn gelijk','Dat kan je niet bepalen'],c:1,e:'Je leest het boek in enkele uren, maar het verhaal beslaat jaren, met tijdsprongen.'}
+    ]
+  };
+  var CANDO=[
+    'Ik kan flat en round characters en agency herkennen en uitleggen met voorbeelden.',
+    'Ik kan verteller, focalisatie, ruimte en tijd analyseren en het effect beschrijven.',
+    'Ik kan het thema van het boek in één zin formuleren en onderbouwen.',
+    'Ik kan uitleggen wat een motief is en drie motieven aan het thema koppelen.',
+    'Ik kan uitleggen wat metafictie is en dat illustreren met voorbeelden.',
+    'Ik kan een personage, een verteller en een auteur uit elkaar houden.',
+    'Ik kan met argumenten een standpunt innemen over omstreden boeken op een leeslijst.',
+    'Ik kan mijn oordeel over een roman formuleren in een betoog met voorbeelden uit de tekst.'
+  ];
+  var stations=[].slice.call(document.querySelectorAll('.station'));
+  var stepsEl=document.getElementById('steps');
+  var pbar=document.getElementById('pbar');
+  // nav
+  stations.forEach(function(s,i){
+    var b=document.createElement('button');b.type='button';b.textContent=s.dataset.title;b.dataset.i=i;
+    b.addEventListener('click',function(){show(i);});stepsEl.appendChild(b);
+  });
+  // footers
+  stations.forEach(function(s,i){
+    if(i===0)return;
+    var f=document.createElement('div');f.className='foot';
+    var prev=document.createElement('button');prev.type='button';prev.className='btn ghost';prev.textContent='← Vorige';prev.onclick=function(){show(i-1);};
+    var done=document.createElement('button');done.type='button';done.className='btn';done.dataset.done=i;
+    done.onclick=function(){S.done[i]=!S.done[i];save();refresh();};
+    f.appendChild(prev);f.appendChild(done);
+    if(i<stations.length-1){var nx=document.createElement('button');nx.type='button';nx.className='btn ghost';nx.textContent='Volgende →';nx.onclick=function(){show(i+1);};f.appendChild(nx);}
+    s.appendChild(f);
+  });
+  [].slice.call(document.querySelectorAll('[data-go]')).forEach(function(b){b.onclick=function(){show(+b.dataset.go);};});
+  function show(i){
+    S.cur=i;save();
+    stations.forEach(function(s,j){s.classList.toggle('on',j===i);});
+    refresh();
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
+  }
+  function refresh(){
+    var total=stations.length-1,n=0;
+    for(var i=1;i<stations.length;i++){if(S.done[i])n++;}
+    pbar.style.width=(n/total*100)+'%';
+    [].slice.call(stepsEl.children).forEach(function(b,i){
+      b.classList.toggle('on',i===S.cur);b.classList.toggle('done',!!S.done[i]);
+      if(i===S.cur){try{b.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}
+    });
+    [].slice.call(document.querySelectorAll('[data-done]')).forEach(function(b){
+      var d=!!S.done[b.dataset.done];b.textContent=d?'✓ Station afgerond':'Station afgerond aanvinken';b.classList.toggle('ok',d);
+    });
+  }
+  // autosave fields
+  var nm=document.getElementById('naam');nm.value=S.name||'';nm.addEventListener('input',function(){S.name=nm.value;save();});
+  [].slice.call(document.querySelectorAll('[data-k]')).forEach(function(el){
+    var k=el.dataset.k;
+    if(el.type==='checkbox'||el.type==='radio'){
+      el.checked=!!S.a[k];
+      el.addEventListener('change',function(){
+        if(el.type==='radio'){[].slice.call(document.querySelectorAll('input[name="'+el.name+'"]')).forEach(function(r){S.a[r.dataset.k]=false;});}
+        S.a[k]=el.checked;save();
+      });
+    }else{
+      el.value=S.a[k]||'';
+      el.addEventListener('input',function(){S.a[k]=el.value;save();if(el.hasAttribute('data-count'))wc();});
+    }
+  });
+  function wc(){var t=(document.querySelector('[data-count]').value||'').trim();document.getElementById('wc').textContent=t?t.split(/\s+/).length:0;}
+  wc();
+  // quizzes
+  function renderQuiz(el){
+    var id=el.dataset.quiz,qs=QUIZ[id];el.innerHTML='';var right=0,answered=0;
+    qs.forEach(function(q,qi){
+      var sel=S.quiz[id+qi];var box=document.createElement('div');box.className='qbox';
+      var p=document.createElement('p');p.innerHTML='<b>'+(qi+1)+'.</b> '+q.q;box.appendChild(p);
+      var opts=document.createElement('div');opts.className='opts';
+      q.o.forEach(function(t,oi){
+        var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=t;
+        if(sel!==undefined){b.disabled=true;if(oi===q.c)b.classList.add('right');else if(oi===sel)b.classList.add('wrong');}
+        b.onclick=function(){S.quiz[id+qi]=oi;save();renderQuiz(el);};
+        opts.appendChild(b);
+      });
+      box.appendChild(opts);
+      if(sel!==undefined){answered++;if(sel===q.c)right++;var e=document.createElement('div');e.className='expl';e.textContent=(sel===q.c?'Juist. ':'Niet helemaal. ')+q.e;box.appendChild(e);}
+      el.appendChild(box);
+    });
+    if(answered===qs.length){
+      var sc=document.createElement('div');sc.className='score';sc.textContent='Score: '+right+' / '+qs.length;el.appendChild(sc);
+      var r=document.createElement('button');r.type='button';r.className='btn ghost';r.textContent='Opnieuw proberen';
+      r.onclick=function(){qs.forEach(function(_,qi){delete S.quiz[id+qi];});save();renderQuiz(el);};el.appendChild(r);
+    }
+  }
+  [].slice.call(document.querySelectorAll('[data-quiz]')).forEach(renderQuiz);
+  // stars
+  var starsEl=document.getElementById('stars');
+  function paintStars(){starsEl.innerHTML='';for(var i=1;i<=5;i++){(function(i){var b=document.createElement('button');b.type='button';b.textContent='★';b.setAttribute('aria-label',i+' ster'+(i>1?'ren':''));b.className=i<=S.stars?'on':'';b.onclick=function(){S.stars=i;save();paintStars();};starsEl.appendChild(b);})(i);}}
+  paintStars();
+  // self evaluation
+  var se=document.getElementById('selfeval');
+  var LEVELS=['Nog niet','Bijna','Ja'];
+  function paintSE(){
+    se.innerHTML='';
+    CANDO.forEach(function(t,i){
+      var d=document.createElement('div');d.innerHTML='<div>'+t+'</div>';
+      var seg=document.createElement('div');seg.className='seg';
+      LEVELS.forEach(function(l,li){var b=document.createElement('button');b.type='button';b.textContent=l;if(S.rate[i]===li)b.className='on';b.onclick=function(){S.rate[i]=li;save();paintSE();};seg.appendChild(b);});
+      d.appendChild(seg);se.appendChild(d);
+    });
+  }
+  paintSE();
+  // dossier
+  var dos=document.getElementById('dos'),msg=document.getElementById('dosmsg');
+  function buildDossier(){
+    var entries=[];
+    [].slice.call(document.querySelectorAll('.task')).forEach(function(t){
+      var qs=[].slice.call(t.querySelectorAll('.q')),tas=[].slice.call(t.querySelectorAll('textarea')).filter(function(ta){return !ta.closest('.tblwrap');});
+      tas.forEach(function(ta,i){
+        if(!ta.value.trim())return;
+        var q=qs[i]||qs[qs.length-1];
+        entries.push({q:q?q.textContent.trim():'',a:ta.value.trim()});
+      });
+    });
+    var tableRows=[];
+    [].slice.call(document.querySelectorAll('.tblwrap tr')).slice(1).forEach(function(tr){
+      var label=tr.children[0].textContent.trim();
+      var tas=tr.querySelectorAll('textarea');
+      var inhoud=(tas[0]&&tas[0].value.trim())||'',verband=(tas[1]&&tas[1].value.trim())||'';
+      if(inhoud||verband)tableRows.push({label:label,inhoud:inhoud||'(niet ingevuld)',verband:verband||'(niet ingevuld)'});
+    });
+    var quizResults=[];
+    ['warm','motief','metafictie','end'].forEach(function(id){
+      if(!QUIZ[id])return;
+      var r=0,n=0;QUIZ[id].forEach(function(q,qi){if(S.quiz[id+qi]!==undefined){n++;if(S.quiz[id+qi]===q.c)r++;}});
+      if(n)quizResults.push({id:id,r:r,n:QUIZ[id].length});
+    });
+    var selfeval=CANDO.map(function(t,i){return {t:t,level:S.rate[i]!==undefined?LEVELS[S.rate[i]]:'niet ingevuld'};});
+    return {name:S.name||'…',stars:S.stars||0,entries:entries,tableRows:tableRows,quizResults:quizResults,selfeval:selfeval};
+  }
+  function dossierToText(d){
+    var out='Het Gouden Ei — mijn leerpad\nNaam: '+d.name+'\n\n';
+    d.entries.forEach(function(e){out+=e.q+'\n'+e.a+'\n\n';});
+    if(d.tableRows.length){
+      out+='Samenvattende motieventabel:\n';
+      d.tableRows.forEach(function(r){out+='- '+r.label+' — inhoud: '+r.inhoud+' | verband met thema: '+r.verband+'\n';});
+      out+='\n';
+    }
+    out+='Sterren: '+d.stars+' / 5\n';
+    d.quizResults.forEach(function(r){out+='Quiz '+r.id+': '+r.r+' / '+r.n+'\n';});
+    out+='\nZelfevaluatie:\n';
+    d.selfeval.forEach(function(e){out+='- '+e.t+' → '+e.level+'\n';});
+    return out;
+  }
+  function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function dossierToDocHtml(d){
+    var h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
+    h+='<head><meta charset="utf-8"><title>Het Gouden Ei — dossier</title></head><body style="font-family:Calibri,Arial,sans-serif;font-size:11pt">';
+    h+='<h1>Het Gouden Ei — mijn leerpad</h1>';
+    h+='<p><b>Naam:</b> '+escHtml(d.name)+'</p>';
+    d.entries.forEach(function(e){
+      h+='<p><b>'+escHtml(e.q)+'</b><br>'+escHtml(e.a).replace(/\n/g,'<br>')+'</p>';
+    });
+    if(d.tableRows.length){
+      h+='<h2>Samenvattende motieventabel</h2>';
+      h+='<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%">';
+      h+='<tr><th>Motief</th><th>Wat houdt het in?</th><th>Verband met thema</th></tr>';
+      d.tableRows.forEach(function(r){h+='<tr><td>'+escHtml(r.label)+'</td><td>'+escHtml(r.inhoud)+'</td><td>'+escHtml(r.verband)+'</td></tr>';});
+      h+='</table>';
+    }
+    h+='<h2>Sterren</h2><p>'+d.stars+' / 5</p>';
+    if(d.quizResults.length){
+      h+='<h2>Quizresultaten</h2><ul>';
+      d.quizResults.forEach(function(r){h+='<li>Quiz '+escHtml(r.id)+': '+r.r+' / '+r.n+'</li>';});
+      h+='</ul>';
+    }
+    h+='<h2>Zelfevaluatie</h2><ul>';
+    d.selfeval.forEach(function(e){h+='<li>'+escHtml(e.t)+' \u2192 '+escHtml(e.level)+'</li>';});
+    h+='</ul></body></html>';
+    return h;
+  }
+  document.getElementById('mkdos').onclick=function(){
+    var d=buildDossier();
+    dos.value=dossierToText(d);
+    msg.textContent='Dossier samengesteld.';
+  };
+  document.getElementById('dldoc').onclick=function(){
+    var d=buildDossier();
+    if(!d.entries.length){msg.textContent='Vul eerst enkele antwoorden in.';return;}
+    var html=dossierToDocHtml(d);
+    var blob=new Blob(['\ufeff',html],{type:'application/msword'});
+    var namePart=(d.name||'leerling').trim().replace(/[^a-z0-9]+/gi,'_');
+    var filename='Het_Gouden_Ei_'+namePart+'.doc';
+    try{
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+      setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+      dos.value=dossierToText(d);
+      msg.textContent='Word-document gedownload. Upload het naar Google Drive om het als Google Doc te openen.';
+    }catch(e){
+      dos.value=dossierToText(d);
+      msg.textContent='Downloaden lukte niet automatisch — kopieer de tekst hieronder als alternatief.';
+    }
+  };
+  document.getElementById('cpdos').onclick=function(){
+    if(!dos.value){var d=buildDossier();dos.value=dossierToText(d);}
+    function fallback(){try{dos.removeAttribute('readonly');dos.select();var ok=document.execCommand('copy');dos.setAttribute('readonly','');msg.textContent=ok?'Gekopieerd.':'Selecteer de tekst en kopieer ze met Ctrl/Cmd + C.';}catch(e){msg.textContent='Selecteer de tekst en kopieer ze met Ctrl/Cmd + C.';}}
+    try{navigator.clipboard.writeText(dos.value).then(function(){msg.textContent='Gekopieerd.';},fallback);}catch(e){fallback();}
+  };
+
+  // Plakken uitschakelen in alle antwoordvelden (tegen plagiaat)
+  [].slice.call(document.querySelectorAll('textarea:not(#dos), input[type=text]:not(#naam)')).forEach(function(el){
+    el.addEventListener('paste',function(ev){
+      ev.preventDefault();
+      var note=document.createElement('div');
+      note.textContent='Plakken is uitgeschakeld — typ je antwoord zelf.';
+      note.style.cssText='font-size:.8rem;color:var(--bad);margin-top:4px';
+      el.insertAdjacentElement('afterend',note);
+      setTimeout(function(){note.remove();},2200);
+    });
+    el.addEventListener('drop',function(ev){ev.preventDefault();});
+    el.addEventListener('contextmenu',function(ev){ev.preventDefault();});
+  });
+  var start=(typeof S.cur==='number'&&S.cur>=0&&S.cur<stations.length)?S.cur:0;
+  stations[start].classList.add('on');S.cur=start;refresh();
+})();
+</script>
+</body>
+</html>
